@@ -7,24 +7,12 @@ public class Game : MonoBehaviour {
 	private int numberOfPlayers;
 	private float turnTime = 3F;
 
-	public GameObject deck;
+
 	public GameObject ball;
 	public GameObject redPlayer;
 	public GameObject bluePlayer;
 	private List<GameObject> redPlayers;
 	private List<GameObject> bluePlayers;
-
-	// Use this for initialization
-	void Start () {
-		SummonPlayers ();
-
-		SummonBall ();
-
-		StartCoroutine(StartMatch ());
-	}
-	
-	// Update is called once per frame
-	void Update () {}
 
 	// Summon ball on the field
 	private void SummonBall () {
@@ -72,7 +60,7 @@ public class Game : MonoBehaviour {
 		}
 
 		Player playerScript = (Player)bluePlayers[0].GetComponent (typeof(Player));
-		playerScript.SetName ("Player 1");
+		playerScript.SetPlayerName ("Zé da Burra");
 	}
 
 	// Start game match
@@ -80,6 +68,14 @@ public class Game : MonoBehaviour {
 		print("Starting match at: " + Time.time);
 
 		bool matchIsOver = false;
+
+		for (int i = 0; i < numberOfPlayers / 2; i++) {
+			Player bluePlayerScript = (Player)bluePlayers[i].GetComponent (typeof(Player));
+			bluePlayerScript.PopCardsFromDeck (5);
+
+			Player redPlayerScript = (Player)redPlayers[i].GetComponent (typeof(Player));
+			redPlayerScript.PopCardsFromDeck (5);
+		}
 
 		while (!matchIsOver) {
 			for (int i = 0; i < numberOfPlayers / 2; i++) {
@@ -105,4 +101,16 @@ public class Game : MonoBehaviour {
 		// 4º, stop player turn
 		playerScript.StopPlaying ();
 	}
+
+	// Use this for initialization
+	void Start () {
+		SummonPlayers ();
+
+		SummonBall ();
+
+		StartCoroutine(StartMatch ());
+	}
+
+	// Update is called once per frame
+	void Update () {}
 }
