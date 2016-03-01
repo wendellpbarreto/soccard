@@ -4,10 +4,12 @@ using System.Collections.Generic;
 
 public class Game : MonoBehaviour {
 
+	// TODO: set times with variables
+	private float turnTime = 16F;
+
 	private int numberOfPlayers;
-	private float turnTime = 3F;
 
-
+	public GameObject countdownPrefab;
 	public GameObject ball;
 	public GameObject redPlayer;
 	public GameObject bluePlayer;
@@ -63,12 +65,27 @@ public class Game : MonoBehaviour {
 		playerScript.SetPlayerName ("Zé da Burra");
 	}
 
+	public void StartCountdown(int seconds) {
+		StartCoroutine (CORStartCountdown (seconds));
+	}
+
+	// Start countdown
+	IEnumerator CORStartCountdown(int seconds) {
+		GameObject countdown = Instantiate (countdownPrefab);
+		countdown.transform.position = new Vector3 (0, 0, 0);
+		Animator countdownAnimation = countdown.GetComponent<Animator> ();
+		countdownAnimation.speed = Time.deltaTime * 4;
+
+		yield return new WaitForSeconds (seconds);
+
+		Destroy (countdown);
+	}
+
 	// Start game match
 	IEnumerator StartMatch () {
-		print("Starting match at: " + Time.time);
-
 		bool matchIsOver = false;
 
+		Debug.Log("Delivering first five cards to each player at: " + Time.time + " seconds");
 		for (int i = 0; i < numberOfPlayers / 2; i++) {
 			Player bluePlayerScript = (Player)bluePlayers[i].GetComponent (typeof(Player));
 			bluePlayerScript.PopCardsFromDeck (5);
@@ -77,6 +94,10 @@ public class Game : MonoBehaviour {
 			redPlayerScript.PopCardsFromDeck (5);
 		}
 
+		StartCountdown (5);
+		yield return new WaitForSeconds (6);
+
+		Debug.Log("Starting match at: " + Time.time + " seconds");
 		while (!matchIsOver) {
 			for (int i = 0; i < numberOfPlayers / 2; i++) {
 				yield return StartCoroutine (StartPlayerTurn (bluePlayers [i]));
@@ -89,6 +110,9 @@ public class Game : MonoBehaviour {
 	IEnumerator StartPlayerTurn (GameObject player) {
 		Player playerScript = (Player)player.GetComponent (typeof(Player));
 
+		// 0º, start countdown
+		StartCountdown (16);
+
 		// 1º, change ball position to match current player's position
 		MoveBall (this.ball, player.transform.position);
 
@@ -96,7 +120,7 @@ public class Game : MonoBehaviour {
 		playerScript.StartPlaying ();
 
 		// 3º, wait turn time
-		yield return new WaitForSeconds (turnTime);
+		yield return new WaitForSeconds (16);
 
 		// 4º, stop player turn
 		playerScript.StopPlaying ();

@@ -62,7 +62,7 @@ public class Deck : MonoBehaviour {
 			new CardType("pass", 20),
 		};
 
-		transform.position = new Vector3 (1, 0, 0);
+		transform.position = new Vector3 (2.3f, 0, 0);
 
 		foreach ( CardType deckSpec in deckSpecs ) {
 			for (int i = 0; i < deckSpec.numberOfCardsOfType; i++) {

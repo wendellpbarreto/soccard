@@ -49,8 +49,8 @@ public class Player : MonoBehaviour {
 //	}
 
 	private void PutCardOnPlayersHand (GameObject card) {
-		float x = (gameObject.transform.position.x - 1f) + ((float) hand.Count / 2);
-		float y = gameObject.transform.position.y - 1f;
+		float x = (gameObject.transform.position.x - 0.5f) + ((float) hand.Count / 6);
+		float y = gameObject.transform.position.y - 0.5f;
 
 		card.transform.position = new Vector3 (x, y, 0);
 		card.layer = hand.Count;
@@ -68,13 +68,21 @@ public class Player : MonoBehaviour {
 		hand.Add (poppedCard);
 	}
 
-	public void PopCardsFromDeck (int times) {
+	IEnumerator CORPopCardsFromDeck(int times) {
 		for (int i = 0; i < times; i++) {
 			PopCardFromDeck ();
+
+			yield return new WaitForSeconds(1);
 		}
 	}
 
+	public void PopCardsFromDeck (int times) {
+		StartCoroutine (CORPopCardsFromDeck (times));
+	}
+
 	public void StartPlaying () {
+		Debug.Log ("Player " + this.GetPlayerName() +  " is playing at: " + Time.time + " seconds");
+
 		// Tell the player that he can play
 		this.canPlay = true;
 
@@ -82,7 +90,6 @@ public class Player : MonoBehaviour {
 		this.PopCardFromDeck ();
 
 
-		Debug.Log ("Player " + this.GetPlayerName() +  " is playing!");
 	}
 
 	public void StopPlaying () {
