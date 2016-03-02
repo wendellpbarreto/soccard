@@ -5,8 +5,13 @@ using System.Collections.Generic;
 
 public class Player : MonoBehaviour {
 
-	private GameObject deckGameObject;
-	private Deck deck;
+	public GameObject playButtonPrefab = null;
+
+	private GameObject gameGameObject = null;
+	private Game game = null;
+
+	private GameObject deckGameObject = null;
+	private Deck deck = null;
 
 	private List<GameObject> hand = new List<GameObject> ();
 
@@ -27,12 +32,20 @@ public class Player : MonoBehaviour {
 		}
 	}
 
+	public void SetHand(List<GameObject> hand) {
+		hand = hand;
+	}
+
 	public List<GameObject> GetHand () {
 		return hand;
 	}
 
 	public bool IsBot() {
 		return isBot;
+	}
+
+	public bool CanPlay() {
+		return canPlay;	
 	}
 
 	//	IEnumerator MoveObject(GameObject obj, Vector3 startPosition, Vector3 endPosition, float rate) {
@@ -101,13 +114,21 @@ public class Player : MonoBehaviour {
 			if (cardScript.IsSelected ()) {
 				cardScript.UnselectCard ();
 			} else {
-				foreach (GameObject handCard in hand) {
-					Card handCardScript = (Card)handCard.GetComponent (typeof(Card));
-					handCardScript.UnselectCard ();
-				}
+//				foreach (GameObject handCard in hand) {
+//					Card handCardScript = (Card)handCard.GetComponent (typeof(Card));
+//					handCardScript.UnselectCard ();
+//				}
 
 				cardScript.SelectCard ();
 			}
+		}
+	}
+
+	private void TogglePlayButton() {
+		if (playButtonPrefab.GetComponent<Renderer> ().enabled) {
+			playButtonPrefab.GetComponent<Renderer> ().enabled = false;
+		} else {
+			playButtonPrefab.GetComponent<Renderer> ().enabled = true;
 		}
 	}
 
@@ -124,12 +145,52 @@ public class Player : MonoBehaviour {
 		if (IsBot ()) {
 
 		} else {
-			
+			TogglePlayButton ();
 		}
 	}
 
 	public void StopPlaying () {
 		canPlay = false;
+
+		if (IsBot ()) {
+			
+		} else {
+			TogglePlayButton ();
+		}
+	}
+
+	private bool IsAnyCardSelected() {
+		foreach (GameObject handCard in hand) {
+			if (handCard.GetComponent<Card> ().IsSelected ()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private void EndPlayerTurn (List<GameObject> usedCards) {
+		canPlay = false;
+		TogglePlayButton ();
+
+	}
+
+	public void PlayButtonClicked () {
+		if (CanPlay()) {
+			canPlay = false;
+			TogglePlayButton ();
+
+			List<GameObject> usedCards = game.EnginePlayerTurn ();
+
+			if (usedCards != null) {
+				EndPlayerTurn (usedCards);
+			} else {
+				canPlay = true;
+				TogglePlayButton ();
+
+				Debug.Log ("Move isn't possible!");
+			}
+		}
 	}
 
 	// This function is always called before any Start functions and also just after a prefab is instantiated
@@ -138,10 +199,25 @@ public class Player : MonoBehaviour {
 			deckGameObject = GameObject.Find ("Deck");
 			deck = (Deck) deckGameObject.GetComponent (typeof(Deck));
 		}
+
+		if (game == null) {
+			gameGameObject = GameObject.Find ("Game");
+			game = (Game) gameGameObject.GetComponent (typeof(Game));
+		}
 	}
 
 	// Use this for initialization
-	void Start () {}
+	void Start () {
+		if (!IsBot ()) {
+			playButtonPrefab = Instantiate (playButtonPrefab);
+			playButtonPrefab.GetComponent<Renderer> ().enabled = false;
+
+			PlayButton playButton = (PlayButton)playButtonPrefab.GetComponent (typeof(PlayButton));
+			playButton.transform.position = new Vector3 (0, -1, 0);
+			playButton.SetPlayer (gameObject);
+
+		}
+	}
 
 	// Update is called once per frame
 	void Update () {

@@ -127,6 +127,11 @@ public class Game : MonoBehaviour {
 		playerScript.StopPlaying ();
 	}
 
+	// Engine player turn (this function is called by player object when he make a move)
+	public List<GameObject> EnginePlayerTurn() {
+		return null;
+	}
+
 	// Use this for initialization
 	void Start () {
 		SummonPlayers ();
