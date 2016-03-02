@@ -64,11 +64,7 @@ public class Game : MonoBehaviour {
 		Player playerScript = (Player)bluePlayers[0].GetComponent (typeof(Player));
 		playerScript.SetPlayerName ("Zé da Burra");
 	}
-
-	public void StartCountdown(int seconds) {
-		StartCoroutine (CORStartCountdown (seconds));
-	}
-
+		
 	// Start countdown
 	IEnumerator CORStartCountdown(int seconds) {
 		GameObject countdown = Instantiate (countdownPrefab);
@@ -80,6 +76,11 @@ public class Game : MonoBehaviour {
 
 		Destroy (countdown);
 	}
+
+	public void StartCountdown(int seconds) {
+		StartCoroutine (CORStartCountdown (seconds));
+	}
+
 
 	// Start game match
 	IEnumerator StartMatch () {
@@ -95,7 +96,7 @@ public class Game : MonoBehaviour {
 		}
 
 		StartCountdown (5);
-		yield return new WaitForSeconds (6);
+		yield return new WaitForSeconds (5);
 
 		Debug.Log("Starting match at: " + Time.time + " seconds");
 		while (!matchIsOver) {

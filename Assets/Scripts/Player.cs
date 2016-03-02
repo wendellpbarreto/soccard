@@ -15,55 +15,69 @@ public class Player : MonoBehaviour {
 	private String playerName = "Bot";
 
 	public void SetPlayerName (String playerName) {
-		this.playerName = playerName;	
-		this.isBot = false;
+		playerName = playerName;	
+		isBot = false;
 	}
 
 	public String GetPlayerName () {
-		if (this.IsBot()) {
-			return this.playerName + " " + gameObject.GetInstanceID ().ToString().Replace("-", "");
+		if (IsBot()) {
+			return playerName + " " + gameObject.GetInstanceID ().ToString().Replace("-", "");
 		} else {
-			return this.playerName;
+			return playerName;
 		}
 	}
 
-	public bool IsBot() {
-		return this.isBot;
+	public List<GameObject> GetHand () {
+		return hand;
 	}
 
-//	IEnumerator MoveObject(GameObject obj, Vector3 startPosition, Vector3 endPosition, float rate) {
-//		bool done = false;
-//		float delay = 0;
-//
-//		obj.transform.position = startPosition;
-//
-//		while (true) {
-//			delay += Time.deltaTime;
-//
-//			while(delay > rate) {
-//				delay = 0;
-//
-//				obj.transform.position = Vector3.MoveTowards(obj.transform.position, endPosition, rate);
-//			}
-//		}
-//	}
+	public bool IsBot() {
+		return isBot;
+	}
 
-	private void PutCardOnPlayersHand (GameObject card) {
+	//	IEnumerator MoveObject(GameObject obj, Vector3 startPosition, Vector3 endPosition, float rate) {
+	//		bool done = false;
+	//		float delay = 0;
+	//
+	//		obj.transform.position = startPosition;
+	//
+	//		while (true) {
+	//			delay += Time.deltaTime;
+	//
+	//			while(delay > rate) {
+	//				delay = 0;
+	//
+	//				obj.transform.position = Vector3.MoveTowards(obj.transform.position, endPosition, rate);
+	//			}
+	//		}
+	//	}
+
+	private void PutCardOnOtherPlayersHand (GameObject card) {
 		float x = (gameObject.transform.position.x - 0.5f) + ((float) hand.Count / 6);
 		float y = gameObject.transform.position.y - 0.5f;
 
 		card.transform.position = new Vector3 (x, y, 0);
-		card.layer = hand.Count;
 	}
-		
+
+	private void PutCardOnPlayersHand (GameObject card) {
+		float x = (gameObject.transform.position.x - 2f) + (float) hand.Count;
+		float y = gameObject.transform.position.y + 1f;
+
+		card.transform.localScale += new Vector3 (0.3f, 0.3f, 0);
+		card.transform.position = new Vector3 (x, y, 0);
+
+		Card cardScript = (Card)card.GetComponent (typeof(Card));
+		cardScript.SetPlayer (gameObject);
+	}
+
 	private void PopCardFromDeck () {
-		if (deck == null) {
-			deckGameObject = GameObject.Find ("Deck");
-			deck = (Deck) deckGameObject.GetComponent (typeof(Deck));
-		}
 		GameObject poppedCard = deck.PopCard ();
 
-		this.PutCardOnPlayersHand(poppedCard);
+		if (IsBot ()) {
+			PutCardOnOtherPlayersHand (poppedCard);
+		} else { 
+			PutCardOnPlayersHand (poppedCard);
+		}
 
 		hand.Add (poppedCard);
 	}
@@ -72,7 +86,7 @@ public class Player : MonoBehaviour {
 		for (int i = 0; i < times; i++) {
 			PopCardFromDeck ();
 
-			yield return new WaitForSeconds(1);
+			yield return new WaitForSeconds(0.5f);
 		}
 	}
 
@@ -80,27 +94,54 @@ public class Player : MonoBehaviour {
 		StartCoroutine (CORPopCardsFromDeck (times));
 	}
 
+	public void CardClicked (GameObject card) {
+		if (!IsBot ()) {
+			Card cardScript = (Card)card.GetComponent (typeof(Card));
+
+			if (cardScript.IsSelected ()) {
+				cardScript.UnselectCard ();
+			} else {
+				foreach (GameObject handCard in hand) {
+					Card handCardScript = (Card)handCard.GetComponent (typeof(Card));
+					handCardScript.UnselectCard ();
+				}
+
+				cardScript.SelectCard ();
+			}
+		}
+	}
+
 	public void StartPlaying () {
-		Debug.Log ("Player " + this.GetPlayerName() +  " is playing at: " + Time.time + " seconds");
+		Debug.Log ("Player " + GetPlayerName() +  " is playing at: " + Time.time + " seconds");
 
-		// Tell the player that he can play
-		this.canPlay = true;
+		// 0º, tell the player that he can play
+		canPlay = true;
 
-		// Pop one card from deck
-		this.PopCardFromDeck ();
+		// 1º, pop one card from deck
+		PopCardFromDeck ();
 
+		// 2º, is player is bot, play for him
+		if (IsBot ()) {
 
+		} else {
+			
+		}
 	}
 
 	public void StopPlaying () {
-		this.canPlay = false;
+		canPlay = false;
+	}
+
+	// This function is always called before any Start functions and also just after a prefab is instantiated
+	void Awake () {
+		if (deck == null) {
+			deckGameObject = GameObject.Find ("Deck");
+			deck = (Deck) deckGameObject.GetComponent (typeof(Deck));
+		}
 	}
 
 	// Use this for initialization
-	void Start () {
-		deckGameObject = GameObject.Find ("Deck");
-		deck = (Deck) deckGameObject.GetComponent (typeof(Deck));
-	}
+	void Start () {}
 
 	// Update is called once per frame
 	void Update () {
