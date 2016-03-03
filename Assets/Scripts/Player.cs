@@ -20,7 +20,7 @@ public class Player : MonoBehaviour {
 	private String playerName = "Bot";
 
 	public void SetPlayerName (String playerName) {
-		playerName = playerName;	
+		this.playerName = playerName;	
 		isBot = false;
 	}
 
@@ -33,7 +33,7 @@ public class Player : MonoBehaviour {
 	}
 
 	public void SetHand(List<GameObject> hand) {
-		hand = hand;
+		this.hand = hand;
 	}
 
 	public List<GameObject> GetHand () {
@@ -70,14 +70,16 @@ public class Player : MonoBehaviour {
 		float y = gameObject.transform.position.y - 0.5f;
 
 		card.transform.position = new Vector3 (x, y, 0);
+		card.transform.Rotate (0, 0, 15 - hand.Count * 6);
 	}
 
 	private void PutCardOnPlayersHand (GameObject card) {
-		float x = (gameObject.transform.position.x - 2f) + (float) hand.Count;
+		float x = (gameObject.transform.position.x - 2.5f) + (float) hand.Count;
 		float y = gameObject.transform.position.y + 1f;
 
 		card.transform.localScale += new Vector3 (0.3f, 0.3f, 0);
 		card.transform.position = new Vector3 (x, y, 0);
+		card.transform.Rotate (0, 0, 15 - hand.Count * 6);
 
 		Card cardScript = (Card)card.GetComponent (typeof(Card));
 		cardScript.SetPlayer (gameObject);
@@ -106,6 +108,8 @@ public class Player : MonoBehaviour {
 	public void PopCardsFromDeck (int times) {
 		StartCoroutine (CORPopCardsFromDeck (times));
 	}
+
+
 
 	public void CardClicked (GameObject card) {
 		if (!IsBot ()) {
@@ -169,21 +173,33 @@ public class Player : MonoBehaviour {
 		return false;
 	}
 
-	private void EndPlayerTurn (List<GameObject> usedCards) {
-		canPlay = false;
-		TogglePlayButton ();
+	IEnumerator CORMoveCardToTheTable (GameObject card) {
+		hand.Remove (card);
+		card.transform.position = new Vector3 (-2.3f, 0, 0);
+		card.transform.Rotate (0, 0, (float) UnityEngine.Random.Range(-10, 10));
 
+		yield return new WaitForSeconds (1F);
 	}
+
+	private void EndPlayerTurn () {
+		canPlay = false;
+
+		foreach (GameObject handCard in hand.ToArray()) {
+			if (handCard.GetComponent<Card> ().IsSelected ()) {
+				StartCoroutine(CORMoveCardToTheTable (handCard));
+			}
+		}
+	} 	
 
 	public void PlayButtonClicked () {
 		if (CanPlay()) {
 			canPlay = false;
 			TogglePlayButton ();
 
-			List<GameObject> usedCards = game.EnginePlayerTurn ();
+			bool isMovePossible = game.EnginePlayerTurn ();
 
-			if (usedCards != null) {
-				EndPlayerTurn (usedCards);
+			if (isMovePossible == true) {
+				EndPlayerTurn ();
 			} else {
 				canPlay = true;
 				TogglePlayButton ();
@@ -220,7 +236,5 @@ public class Player : MonoBehaviour {
 	}
 
 	// Update is called once per frame
-	void Update () {
-
-	}
+	void Update () { }
 }

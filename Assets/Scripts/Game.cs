@@ -128,8 +128,8 @@ public class Game : MonoBehaviour {
 	}
 
 	// Engine player turn (this function is called by player object when he make a move)
-	public List<GameObject> EnginePlayerTurn() {
-		return null;
+	public bool EnginePlayerTurn() {
+		return true;
 	}
 
 	// Use this for initialization
@@ -142,5 +142,7 @@ public class Game : MonoBehaviour {
 	}
 
 	// Update is called once per frame
-	void Update () {}
+	void Update () {
+		transform.RotateAround(Vector3.zero, Vector3.up, 20 * Time.deltaTime);
+	}
 }

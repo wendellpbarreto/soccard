@@ -2,19 +2,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using Util;
 
 public class Deck : MonoBehaviour {
 
-	public GameObject cardPrefab;
+	private int numberOfCards = 0;
 
-	private List<CCard> cards;
+	private readonly int cardKickAmount = 20;
+	private readonly int cardDefenseAmount = 20;
+	private readonly int cardPassAmount = 20;
 
-	private List<CardType> deckSpecs;
+	public GameObject cardKickPrefab;
+	public GameObject cardDefensePrefab;
+	public GameObject cardPassPrefab;
 
-	private class CCard {
+	private List<CardSpec> cards;
+
+	private class CardSpec {
 		public String cardTypeName;
 
-		public CCard (String cardTypeName) {
+		public CardSpec (String cardTypeName) {
 			this.cardTypeName = cardTypeName;
 		}
 
@@ -23,53 +30,60 @@ public class Deck : MonoBehaviour {
 		}
 	}
 
-	private class CardType {
-		public String cardTypeName;
-		public int numberOfCardsOfType;
 
-		public CardType(String cardTypeName, int numberOfCardsOfType) {
-			this.cardTypeName = cardTypeName;
-			this.numberOfCardsOfType = numberOfCardsOfType;
-		}
-
-
-	}
 
 	public GameObject PopCard () {
-		CCard poppedCard = null;
-
+		CardSpec poppedCard = null;
 		while (poppedCard == null) {
-			int randomNumber = UnityEngine.Random.Range (0, cards.Count);
+			int randomNumber = UnityEngine.Random.Range (0, cards.Count - 1);
 
 			poppedCard = cards [randomNumber];
 			cards.RemoveAt (randomNumber);
 		}
 
-		GameObject card = Instantiate (cardPrefab);
-		card.transform.position = transform.position;
+		GameObject card;
+		switch (poppedCard.GetCardTypeName ()) {
+			case "kick":
+				card = Instantiate (cardKickPrefab);
+				break;
+			case "defense": 
+				card = Instantiate (cardKickPrefab);
+				break;
+			case "pass":
+				card = Instantiate (cardPassPrefab);
+				break;
+			default:
+				card = Instantiate (cardPassPrefab);
+			break;
+		}
 
-		Card cardScript = (Card)card.GetComponent (typeof(Card));
-		cardScript.SetCardType (poppedCard.GetCardTypeName ());
+		card.transform.position = transform.position;
 
 		return card;
 	}
 
-	void Start () {
-		cards = new List<CCard> ();
-		deckSpecs = new List<CardType>() { 
-			new CardType("kick", 20),
-			new CardType("defense", 20),
-			new CardType("pass", 20),
-		};
+	private void PopulateDeck () {
+		cards = new List<CardSpec> ();
 
+		for (int i = 0; i < cardKickAmount; i++) {
+			cards.Add( new CardSpec("kick"));
+		}
+
+		for (int i = 0; i < cardDefenseAmount; i++) {
+			cards.Add( new CardSpec("defense"));
+		}
+
+		for (int i = 0; i < cardPassAmount; i++) {
+			cards.Add( new CardSpec("pass"));
+		}
+
+		cards.Shuffle ();
+	}
+
+	void Start () {
 		transform.position = new Vector3 (2.3f, 0, 0);
 
-		foreach ( CardType deckSpec in deckSpecs ) {
-			for (int i = 0; i < deckSpec.numberOfCardsOfType; i++) {
-				CCard card = new CCard (deckSpec.cardTypeName);
-				cards.Add (card);
-			}
-		}
+		PopulateDeck ();
 	}
 	
 	void Update () {}

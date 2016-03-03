@@ -8,7 +8,7 @@ public class PlayButton : MonoBehaviour {
 	private Player playerScript;
 
 	public void SetPlayer (GameObject playerPrefab) {
-		playerPrefab = playerPrefab;
+		this.playerPrefab = playerPrefab;
 	}
 
 	public GameObject GetPlayer () {
