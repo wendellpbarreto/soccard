@@ -163,7 +163,7 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	private bool IsAnyCardSelected() {
+	private bool IsAnyCardSelefcted() {
 		foreach (GameObject handCard in hand) {
 			if (handCard.GetComponent<Card> ().IsSelected ()) {
 				return true;
@@ -196,7 +196,7 @@ public class Player : MonoBehaviour {
 			canPlay = false;
 			TogglePlayButton ();
 
-			bool isMovePossible = game.EnginePlayerTurn ();
+			bool isMovePossible = game.EnginePlayerTurn (gameObject);
 
 			if (isMovePossible == true) {
 				EndPlayerTurn ();
