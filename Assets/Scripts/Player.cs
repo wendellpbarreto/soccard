@@ -9,6 +9,7 @@ public class Player : MonoBehaviour {
 
 	private GameObject gameGameObject = null;
 	private Game game = null;
+	private bool isFromRedTeam = true;
 
 	private GameObject deckGameObject = null;
 	private Deck deck = null;
@@ -25,15 +26,25 @@ public class Player : MonoBehaviour {
 	}
 
 	public String GetPlayerName () {
+		String team = IsFromRedTeam () ? "RED TEAM" : "BLUE TEAM";
+
 		if (IsBot()) {
-			return playerName + " " + gameObject.GetInstanceID ().ToString().Replace("-", "");
+			return "[" + team + "]" + playerName + " " + gameObject.GetInstanceID ().ToString().Replace("-", "");
 		} else {
-			return playerName;
+			return "[" + team + "]" + playerName;
 		}
 	}
 
 	public void SetHand(List<GameObject> hand) {
 		this.hand = hand;
+	}
+
+	public bool IsFromRedTeam () {
+		return isFromRedTeam;
+	}
+
+	public void IsFromRedTeam (bool isFromRedTeam) {
+		this.isFromRedTeam = isFromRedTeam;
 	}
 
 	public List<GameObject> GetHand () {
@@ -46,6 +57,18 @@ public class Player : MonoBehaviour {
 
 	public bool CanPlay() {
 		return canPlay;	
+	}
+
+	public List<GameObject> GetHandSelectedCards() {
+		List<GameObject> handSelectedCards = new List<GameObject> ();
+
+		foreach (GameObject handCard in hand) {
+			if (handCard.GetComponent<Card> ().IsSelected ()) {
+				handSelectedCards.Add (handCard);
+			}
+		}
+
+		return handSelectedCards;
 	}
 
 	//	IEnumerator MoveObject(GameObject obj, Vector3 startPosition, Vector3 endPosition, float rate) {
@@ -118,10 +141,10 @@ public class Player : MonoBehaviour {
 			if (cardScript.IsSelected ()) {
 				cardScript.UnselectCard ();
 			} else {
-//				foreach (GameObject handCard in hand) {
-//					Card handCardScript = (Card)handCard.GetComponent (typeof(Card));
-//					handCardScript.UnselectCard ();
-//				}
+				foreach (GameObject handCard in hand) {
+					Card handCardScript = (Card)handCard.GetComponent (typeof(Card));
+					handCardScript.UnselectCard ();
+				}
 
 				cardScript.SelectCard ();
 			}
@@ -147,7 +170,7 @@ public class Player : MonoBehaviour {
 
 		// 2º, is player is bot, play for him
 		if (IsBot ()) {
-
+			game.SelectAPossibleCardForMe (gameObject, GetHand ());
 		} else {
 			TogglePlayButton ();
 		}
@@ -178,6 +201,10 @@ public class Player : MonoBehaviour {
 		card.transform.position = new Vector3 (-2.3f, 0, 0);
 		card.transform.Rotate (0, 0, (float) UnityEngine.Random.Range(-10, 10));
 
+		if (IsBot ()) {
+			card.transform.localScale += new Vector3 (0.3f, 0.3f, 0);
+		}
+
 		yield return new WaitForSeconds (1F);
 	}
 
@@ -198,13 +225,11 @@ public class Player : MonoBehaviour {
 
 			bool isMovePossible = game.EnginePlayerTurn (gameObject);
 
-			if (isMovePossible == true) {
+			if (isMovePossible) {
 				EndPlayerTurn ();
 			} else {
 				canPlay = true;
 				TogglePlayButton ();
-
-				Debug.Log ("Move isn't possible!");
 			}
 		}
 	}

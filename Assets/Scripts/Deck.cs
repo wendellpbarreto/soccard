@@ -47,7 +47,7 @@ public class Deck : MonoBehaviour {
 				card = Instantiate (cardKickPrefab);
 				break;
 			case "defense": 
-				card = Instantiate (cardKickPrefab);
+				card = Instantiate (cardDefensePrefab);
 				break;
 			case "pass":
 				card = Instantiate (cardPassPrefab);
@@ -57,6 +57,7 @@ public class Deck : MonoBehaviour {
 			break;
 		}
 
+		card.GetComponent<Card> ().SetCardType (poppedCard.GetCardTypeName ());
 		card.transform.position = transform.position;
 
 		return card;
