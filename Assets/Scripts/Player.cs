@@ -29,9 +29,9 @@ public class Player : MonoBehaviour {
 		String team = IsFromRedTeam () ? "RED TEAM" : "BLUE TEAM";
 
 		if (IsBot()) {
-			return "[" + team + "]" + playerName + " " + gameObject.GetInstanceID ().ToString().Replace("-", "");
+			return "[" + team + "] " + playerName + " " + gameObject.GetInstanceID ().ToString().Replace("-", "");
 		} else {
-			return "[" + team + "]" + playerName;
+			return "[" + team + "] " + playerName;
 		}
 	}
 
@@ -151,10 +151,14 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	private void TogglePlayButton() {
+	private void HidePlayButton() {
 		if (playButtonPrefab.GetComponent<Renderer> ().enabled) {
 			playButtonPrefab.GetComponent<Renderer> ().enabled = false;
-		} else {
+		} 
+	}
+
+	private void ShowPlayButton() {
+		if (!playButtonPrefab.GetComponent<Renderer> ().enabled) {
 			playButtonPrefab.GetComponent<Renderer> ().enabled = true;
 		}
 	}
@@ -172,7 +176,7 @@ public class Player : MonoBehaviour {
 		if (IsBot ()) {
 			game.SelectAPossibleCardForMe (gameObject, GetHand ());
 		} else {
-			TogglePlayButton ();
+			ShowPlayButton ();
 		}
 	}
 
@@ -182,7 +186,7 @@ public class Player : MonoBehaviour {
 		if (IsBot ()) {
 			
 		} else {
-			TogglePlayButton ();
+			HidePlayButton ();
 		}
 	}
 
@@ -200,6 +204,16 @@ public class Player : MonoBehaviour {
 		hand.Remove (card);
 		card.transform.position = new Vector3 (-2.3f, 0, 0);
 		card.transform.Rotate (0, 0, (float) UnityEngine.Random.Range(-10, 10));
+
+//		Animator animator = card.GetComponent<Animator> ();
+//		animator.speed = Time.deltaTime;
+//
+//		card.GetComponent<Animation> ().Play();
+
+		Renderer renderer = card.GetComponent<Renderer> ();
+		renderer.sortingOrder = game.GetComponent<Game> ().GetNumberOfCardsOnTheTable ();
+
+		Debug.Log ("Rendering card on sorting layer: " + game.GetComponent<Game> ().GetNumberOfCardsOnTheTable ());
 
 		if (IsBot ()) {
 			card.transform.localScale += new Vector3 (0.3f, 0.3f, 0);
@@ -221,7 +235,7 @@ public class Player : MonoBehaviour {
 	public void PlayButtonClicked () {
 		if (CanPlay()) {
 			canPlay = false;
-			TogglePlayButton ();
+			HidePlayButton ();
 
 			bool isMovePossible = game.EnginePlayerTurn (gameObject);
 
@@ -229,7 +243,7 @@ public class Player : MonoBehaviour {
 				EndPlayerTurn ();
 			} else {
 				canPlay = true;
-				TogglePlayButton ();
+				ShowPlayButton ();
 			}
 		}
 	}

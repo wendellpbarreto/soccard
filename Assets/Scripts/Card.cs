@@ -47,6 +47,10 @@ public class Card : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		playerScript = (Player) playerPrefab.GetComponent (typeof(Player));
+
+		Animator animator = gameObject.GetComponent<Animator> ();
+		animator.speed = Time.deltaTime  * 10;
+//		animator.Stop ();
 	}
 
 	// Update is called once per frame

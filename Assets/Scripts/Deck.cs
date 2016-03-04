@@ -30,8 +30,6 @@ public class Deck : MonoBehaviour {
 		}
 	}
 
-
-
 	public GameObject PopCard () {
 		CardSpec poppedCard = null;
 		while (poppedCard == null) {

@@ -63,6 +63,10 @@ public class Game : MonoBehaviour {
 		return gameActions.Peek ();
 	}
 
+	public int GetNumberOfCardsOnTheTable() {
+		return deskCards.Count;
+	}
+
 	private void UpRedTeamScore () {
 		Debug.Log ("Red team made a GOAL");
 		this.redTeamScore += 1;
@@ -285,6 +289,10 @@ public class Game : MonoBehaviour {
 					}
 				}
 				break;
+			}
+
+			foreach (GameObject handSelectedCard in handSelectedCards) {
+				deskCards.Push (handSelectedCard);
 			}
 
 			gameActions.Push (new GameAction (player, DateTime.Now, handSelectedCards, gameCurrentActionState, gameNewActionState, prevActionPoints, newActionPoints));
